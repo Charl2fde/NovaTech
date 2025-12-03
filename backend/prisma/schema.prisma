@@ -1,0 +1,129 @@
+// Ce fichier définit la structure de notre base de données (Le "Plan" de la maison)
+
+generator client {
+  provider = "prisma-client-js" // Génère le code JavaScript pour parler à la base de données
+}
+
+datasource db {
+  provider = "postgresql" // On utilise PostgreSQL comme moteur de base de données
+  url      = env("DATABASE_URL") // L'adresse de la base est dans le fichier .env
+}
+
+// Modèle Utilisateur (User)
+model User {
+  id        Int      @id @default(autoincrement()) // ID unique (1, 2, 3...)
+  email     String   @unique // L'email doit être unique
+  password  String   // Le mot de passe (crypté)
+  firstName String?  // Prénom (optionnel)
+  lastName  String?  // Nom (optionnel)
+  
+  // Dates automatiques
+  createdAt DateTime @default(now()) // Date de création
+  updatedAt DateTime @updatedAt      // Date de dernière modification
+
+  // Relations (Liens avec d'autres tables)
+  cart      Cart?    // Un utilisateur a un seul panier (optionnel)
+  reviews   Review[] // Un utilisateur peut écrire plusieurs avis
+  orders    Order[]  // Un utilisateur peut passer plusieurs commandes
+
+  // Pour le mot de passe oublié
+  resetPasswordToken String? @unique // Le jeton secret envoyé par email
+  resetPasswordExpires DateTime?     // La date d'expiration du jeton
+}
+
+// Modèle Panier (Cart)
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int?       @unique // Lien vers l'utilisateur (si connecté)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade) // Si l'user est supprimé, le panier aussi
+  items     CartItem[] // Le panier contient plusieurs articles
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Article dans le Panier (CartItem)
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int      // À quel panier appartient cet article ?
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int      // Quel produit est-ce ?
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1) // Combien d'exemplaires ?
+}
+
+// Modèle Produit (Product)
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String   // Titre du produit
+  price       Float    // Prix
+  oldPrice    Float?   // Ancien prix (pour les promos)
+  category    String   // Catégorie (ex: GPU, CPU)
+  brand       String   @default("Generic") // Marque
+  description String?  // Description longue
+  specs       Json?    // Caractéristiques techniques (stockées en format JSON flexible)
+
+  image       String?  // URL de l'image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cartItems   CartItem[]  // Ce produit peut être dans plusieurs paniers
+  reviews     Review[]    // Ce produit peut avoir plusieurs avis
+  orderItems  OrderItem[] // Ce produit peut être dans plusieurs commandes
+
+  // Notes (Calculées automatiquement)
+  rating      Float    @default(0) // Note moyenne (ex: 4.5)
+  reviewCount Int      @default(0) // Nombre d'avis
+}
+
+// Modèle Avis (Review)
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int      // Note (1 à 5)
+  comment   String   // Commentaire texte
+  
+  userId    Int      // Qui a écrit l'avis ?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId Int      // Sur quel produit ?
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+}
+
+// Modèle Commande (Order)
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int         // Qui a commandé ?
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  total     Float       // Montant total payé
+  status    String      @default("PENDING") // Statut: PENDING (En attente), PAID (Payé), etc.
+  
+  // Infos de livraison
+  address   String?
+  city      String?
+  postalCode String?
+  country   String?
+  shippingMethod String?
+  
+  stripePaymentId String? // ID du paiement Stripe (pour retrouver la transaction)
+  
+  items     OrderItem[] // Liste des produits achetés
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// Article dans une Commande (OrderItem)
+// On copie les infos du produit au moment de l'achat (car le prix peut changer plus tard)
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Float   // Prix payé au moment de la commande
+}

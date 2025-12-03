@@ -190,13 +190,16 @@ const CATEGORIES = {
 };
 
 async function downloadImage(url, category, filename) {
-    const categoryDir = path.join(TARGET_DIR, category);
+    // Sanitize category name for folder path (remove accents and spaces)
+    const safeCategory = category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "_");
+    const categoryDir = path.join(TARGET_DIR, safeCategory);
+
     if (!fs.existsSync(categoryDir)) {
         fs.mkdirSync(categoryDir, { recursive: true });
     }
 
     const filePath = path.join(categoryDir, filename);
-    const relativePath = `/images/products/${category}/${filename}`;
+    const relativePath = `/images/products/${safeCategory}/${filename}`;
 
     if (fs.existsSync(filePath)) {
         console.log(`   ⚠️  Image already exists: ${filename}`);
@@ -249,8 +252,12 @@ async function main() {
             }
 
             if (localImages.length === 0) {
-                console.warn(`   ⚠️  No images downloaded for ${category}, skipping products.`);
-                continue;
+                console.warn(`   ⚠️  No images downloaded for ${category}, using fallback.`);
+                // Use a generic placeholder or one of the successfully downloaded images from another category if available
+                // For now, we'll try to use a known existing image or a placeholder path
+                // Assuming "Peripheriques" (sanitized) usually succeeds, we might use that, or just a hardcoded path
+                // that the frontend will handle gracefully (or show "No Image")
+                localImages.push('/images/placeholder.jpg');
             }
 
             // Create products

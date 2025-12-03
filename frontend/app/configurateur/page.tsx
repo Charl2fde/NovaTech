@@ -6,7 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { useRouter } from 'next/navigation';
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     price: number;
     category: string;

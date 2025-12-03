@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
 
 interface ProductCardProps {
-    id: number;
+    id: string;
     title: string;
     price: number;
     oldPrice?: number;
@@ -13,9 +13,10 @@ interface ProductCardProps {
     category: string;
     rating?: number;
     reviewCount?: number;
+    priority?: boolean;
 }
 
-export function ProductCard({ id, title, price, oldPrice, category, rating = 0, reviewCount = 0, image }: ProductCardProps) {
+export function ProductCard({ id, title, price, oldPrice, category, rating = 0, reviewCount = 0, image, priority = false }: ProductCardProps) {
     const { addToCart } = useCart();
     const [isAdding, setIsAdding] = useState(false);
 
@@ -38,6 +39,7 @@ export function ProductCard({ id, title, price, oldPrice, category, rating = 0, 
                         className="object-contain p-4 hover:scale-105 transition-transform duration-300"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         unoptimized={true}
+                        priority={priority}
                     />
                 ) : (
                     <div className="text-gray-400 font-medium">Image Produit</div>

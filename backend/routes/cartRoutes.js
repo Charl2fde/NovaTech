@@ -60,7 +60,7 @@ router.post('/add', authenticateToken, async (req, res) => {
         const existingItem = await prisma.cartItem.findFirst({
             where: {
                 cartId: cart.id,
-                productId: parseInt(productId)
+                productId: productId
             }
         });
 
@@ -75,7 +75,7 @@ router.post('/add', authenticateToken, async (req, res) => {
             await prisma.cartItem.create({
                 data: {
                     cartId: cart.id,
-                    productId: parseInt(productId),
+                    productId: productId,
                     quantity: quantity || 1
                 }
             });
@@ -114,7 +114,7 @@ router.delete('/remove/:itemId', authenticateToken, async (req, res) => {
     try {
         const { itemId } = req.params;
         await prisma.cartItem.delete({
-            where: { id: parseInt(itemId) }
+            where: { id: itemId }
         });
         res.json({ message: 'Article supprimé' });
     } catch (error) {

@@ -9,7 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     price: number;
     oldPrice?: number;

@@ -12,11 +12,11 @@ import { useAuth } from './AuthContext';
 
 // Définition d'un article du panier
 export interface CartItem {
-    id: number; // ID unique de l'article (dans la DB) ou timestamp (en local)
-    productId: number;
+    id: string; // ID unique de l'article (UUID DB ou timestamp string en local)
+    productId: string;
     quantity: number;
     product: { // On garde une copie des infos du produit pour l'affichage
-        id: number;
+        id: string;
         title: string;
         price: number;
         image: string;
@@ -27,8 +27,8 @@ export interface CartItem {
 interface CartContextType {
     items: CartItem[]; // La liste des articles
     addToCart: (product: any) => void; // Ajouter un produit
-    removeFromCart: (itemId: number) => void; // Enlever un produit
-    updateQuantity: (itemId: number, quantity: number) => void; // Changer la quantité
+    removeFromCart: (itemId: string) => void; // Enlever un produit
+    updateQuantity: (itemId: string, quantity: number) => void; // Changer la quantité
     clearCart: () => void; // Tout vider
     cartTotal: number; // Prix total
     itemCount: number; // Nombre total d'articles
@@ -78,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const addToCart = useCallback(async (product: any) => {
         // On crée un objet temporaire pour l'affichage immédiat (Optimistic UI)
         const newItem: CartItem = {
-            id: Date.now(), // ID temporaire
+            id: Date.now().toString(), // ID temporaire
             productId: product.id,
             quantity: 1,
             product: {
@@ -128,7 +128,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [user]);
 
     // Supprimer du panier
-    const removeFromCart = useCallback(async (itemId: number) => {
+    const removeFromCart = useCallback(async (itemId: string) => {
         if (user) {
             // MODE CONNECTÉ
             try {
@@ -151,7 +151,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [user]);
 
     // Mettre à jour la quantité
-    const updateQuantity = useCallback(async (itemId: number, quantity: number) => {
+    const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
         if (quantity < 1) return; // On ne descend pas sous 1 (utiliser supprimer pour ça)
 
         if (user) {

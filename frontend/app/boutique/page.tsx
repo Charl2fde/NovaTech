@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     price: number;
     oldPrice?: number;

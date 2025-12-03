@@ -77,7 +77,7 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        const orderId = parseInt(req.params.id);
+        const orderId = req.params.id;
 
         const order = await prisma.order.findUnique({
             where: { id: orderId },

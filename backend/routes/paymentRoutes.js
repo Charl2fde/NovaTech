@@ -110,9 +110,9 @@ router.post('/confirm-order', authenticateToken, async (req, res) => {
         console.log(`[Confirmation] Statut Stripe: ${paymentIntent.status}`);
 
         if (paymentIntent.status === 'succeeded') {
-            const orderId = parseInt(paymentIntent.metadata.orderId);
+            const orderId = paymentIntent.metadata.orderId;
 
-            if (isNaN(orderId)) {
+            if (!orderId) {
                 return res.status(400).json({ message: "ID de commande invalide." });
             }
 

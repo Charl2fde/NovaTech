@@ -44,7 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setUser(null); // Sinon, personne n'est connecté
                 }
             } catch (error) {
-                console.error("Erreur vérification auth:", error);
+                // 401 is expected if not logged in, don't log it as an error
+                // console.error("Erreur vérification auth:", error);
                 setUser(null);
             } finally {
                 setLoading(false); // On a fini de charger

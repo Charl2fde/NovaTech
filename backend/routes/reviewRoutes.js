@@ -9,7 +9,7 @@ router.get('/:productId', async (req, res) => {
     try {
         const { productId } = req.params;
         const reviews = await prisma.review.findMany({
-            where: { productId: parseInt(productId) },
+            where: { productId: productId },
             include: {
                 user: { // On veut savoir qui a écrit l'avis
                     select: { firstName: true, lastName: true }
@@ -40,7 +40,7 @@ router.post('/', authenticateToken, async (req, res) => {
         const review = await prisma.review.create({
             data: {
                 userId,
-                productId: parseInt(productId),
+                productId: productId,
                 rating: parseInt(rating),
                 comment
             },
@@ -54,7 +54,7 @@ router.post('/', authenticateToken, async (req, res) => {
         // 2. Mise à jour de la note moyenne du produit
         // On recalcule la moyenne de tous les avis pour ce produit
         const aggregations = await prisma.review.aggregate({
-            where: { productId: parseInt(productId) },
+            where: { productId: productId },
             _avg: { rating: true }, // Moyenne
             _count: { rating: true } // Nombre total
         });
@@ -64,7 +64,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
         // On sauvegarde la nouvelle moyenne dans la fiche produit
         await prisma.product.update({
-            where: { id: parseInt(productId) },
+            where: { id: productId },
             data: {
                 rating: newRating,
                 reviewCount: newCount

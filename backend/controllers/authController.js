@@ -1,7 +1,10 @@
 const bcrypt = require('bcryptjs'); // Pour crypter les mots de passe
 const jwt = require('jsonwebtoken'); // Pour créer les jetons de connexion (tokens)
 const prisma = require('../config/prisma'); // Connexion à la base de données
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_this'; // La clé secrète pour signer les tokens
+if (!process.env.JWT_SECRET) {
+    throw new Error('FATAL ERROR: JWT_SECRET is not defined in environment variables.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Inscription d'un utilisateur (Register)
 exports.register = async (req, res) => {
@@ -123,8 +126,7 @@ exports.login = async (req, res) => {
 // Récupérer l'utilisateur connecté (Me)
 exports.me = async (req, res) => {
     try {
-        console.log('Headers:', req.headers);
-        console.log('Cookies reçus:', req.cookies);
+
 
         const token = req.cookies.token; // On lit le cookie
         if (!token) {
@@ -209,7 +211,7 @@ exports.deleteAccount = async (req, res) => {
 // Mot de passe oublié (Demande)
 exports.forgotPassword = async (req, res) => {
     try {
-        console.log('Demande mot de passe oublié pour:', req.body);
+
         const { email } = req.body;
 
         if (!email) {
@@ -220,8 +222,8 @@ exports.forgotPassword = async (req, res) => {
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            // Par sécurité, on ne dit pas si l'email n'existe pas vraiment, mais ici pour le debug on le log
-            console.log('Utilisateur non trouvé pour:', email);
+            // Par sécurité, on ne dit pas si l'email n'existe pas vraiment
+            // console.log('Utilisateur non trouvé pour:', email);
             return res.status(404).json({ message: 'Aucun utilisateur trouvé avec cet email.' });
         }
 

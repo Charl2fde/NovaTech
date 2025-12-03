@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Product {
-  id: number;
+  id: string;
   title: string;
   price: number;
   oldPrice?: number;

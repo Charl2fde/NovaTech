@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
 
         // On cherche le produit unique
         const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) }, // On convertit l'ID en nombre entier
+            where: { id: id }, // On utilise l'ID (UUID)
             include: {
                 reviews: { // On inclut aussi les avis liés à ce produit
                     include: {
@@ -79,7 +79,7 @@ router.get('/:id/similar', async (req, res) => {
 
         // D'abord on trouve le produit de base pour connaître sa catégorie
         const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) }
+            where: { id: id }
         });
 
         if (!product) return res.status(404).json({ message: 'Produit non trouvé' });
@@ -88,7 +88,7 @@ router.get('/:id/similar', async (req, res) => {
         const similar = await prisma.product.findMany({
             where: {
                 category: product.category, // Même catégorie
-                id: { not: parseInt(id) }   // Mais PAS le produit lui-même
+                id: { not: id }   // Mais PAS le produit lui-même
             },
             take: 4 // On en prend juste 4
         });

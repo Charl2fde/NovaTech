@@ -1,6 +1,6 @@
 # 🚀 NovaTech
 
-Bienvenue sur le dépôt de **NovaTech**, une application e-commerce moderne et performante.
+Bienvenue sur le dépôt de **NovaTech**, une application e-commerce d'entrainement.
 
 Ce projet est composé d'une architecture complète :
 - **Frontend** : Une interface utilisateur réactive et élégante construite avec [Next.js](https://nextjs.org/).
